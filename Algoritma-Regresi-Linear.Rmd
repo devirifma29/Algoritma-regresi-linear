@@ -1,0 +1,203 @@
+---
+title: "Algortitma Linear Regression dengan R"
+date: "`r Sys.Date()`"
+author: Devi Rifma Cahyani-Institut Teknologi Statistika dan Bisnis Muhammadiyah
+output:
+  rmdformats::readthedown:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+bibliography: references.bib
+---
+
+```{=html}
+<style>
+body{
+text-align: justify}
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Algoritma 
+Pada tutorial kali ini, akan membahas mengenai Regression Model. Apa itu regression model?
+
+Regression Model merupakan salah satu metode dalam machine learning yang dapat digunakan untuk melakukan prediksi dari suatu target variabel yang bersifat numerik. Keunggulan dari regression model adalah selain kita dapat memperoleh hasil akurasi dari prediksi kita, kita juga memperoleh model untuk prediksi data serta dapat melakukan interpretasi dari model yang kita miliki.
+
+Regression Model memiliki beberapa tipe tergantung dari bentuk data yang kita miliki. Regression Model yang paling simple adalah Linear Regression. Linear Regression memiliki pembagian lagi, tergantung prediktor yang kita gunakan, hanya ada 1 prediktor atau lebih dari satu prediktor. Jika satu prediktor maka kita gunakan Simple Linear Regression, namun jika lebih dari satu prediktor maka kita gunakan Multiple Linear Regression.
+
+# Tahapan
+
+# Eksperimen
+
+```{r}
+wine <- library(haven)
+red_wines_quality <- read_sav("red wines quality.sav")
+View(red_wines_quality)
+str(red_wines_quality)
+```
+
+## Build Model
+Dalam melakukan prediksi menggunakan linear regression, kita gunakan function lm() yang ada pada R.
+```{r}
+model <- lm(Quality~., red_wines_quality)
+summary(model)
+```
+Dalam melakukan prediksi menggunakan linear regression, kita gunakan function lm() yang ada pada R.
+
+## Uji Overall
+Uji yang pertama kita lakukan disebut uji overall. Untuk hipotesis yang digunakan yaitu :
+
+H0 : Model tidak signifikan (Model belum mampu menjelaskan target variabel)
+H1 : Model signifikan (Model mampu menjelaskan target variabel)
+
+Dalam melakukan uji overall, kita melihat nilai F-statistic yang ditampilkan dalam model dan melihat p-value yang paling bawah. Karena nilai p-value < α yaitu <2.2e-16 < 0.05 sehingga kita memperoleh keputusan tolak H0 yang artinya model yang kita buat dapat menjelaskan target variabel yang kita miliki yaitu quality.
+
+## R Squared
+Selanjutnya kita akan melihat kebaikan dari model yang telah kita buat. Untuk melihat kebaikan model kita, kita bisa menggunakan nilai Multiple R-Squared (untuk univariat regression) dan Adjusted R-Squared (untuk multiple regression). Nilai Multiple dan Adjusted R-Squared berkisar dari 0 hingga 1. Semakin mendekati 1, maka model yang kita miliki semakin bagus dalam artian variabel prediktor dapat menjelaskan target variabel kita dengan baik.
+
+Nilai adjusted R-Squared yang kita miliki yaitu 0.2803 atau sebesar 28.03% model dapat menjelaskan target variabel sisanya dijelaskan oleh faktor lain.
+
+
+## Error
+Karena nilai Multiple R-quared yang kita miliki kecil, kita bisa melihat dari nilai error dari hasil prediksi kita. Untuk melihat nilai error, ada beberapa perhitungan error yang bisa kita gunakan. Salah satunya yaitu RMSE (Root Mean Square Error)
+```{r}
+library(caret)
+```
+```{r}
+RMSE(model$fitted.values,red_wines_quality$Quality,na.rm = T)
+```
+Nilai error yang kita dapatkan cukup kecil, sehingga kita bisa gunakan model regresi yang telah kita buat untuk memprediksi nilai quality selanjutnya.
+
+## Uji Parsial
+Selanjutnya untuk mengimprove dari model kita agar nilai R-Squared lebih tinggi, kita melakukan uji parsial. Uji parsial adalah untuk melihat apakah dari masing-masing variabel prediktor yang kita gunakan untuk melakukan prediksi berpengaruh signifikan terhadap target variabel yang kita miliki.
+
+Hipotesis yang digunakan adalah sebagai berikut :
+
+H0 : Variabel prediktor tidak signifikan (Variabel prediktor tidak berpengaruh terhadap nilai dari target variabel)
+H1 : variabel prediktor signifikan (Variabel prediktor berpengaruh terhadap nilai dari target variabel)
+
+Untuk melakukan uji parsial atau melihat apakah berpengaruh atau tidak variabel prediktor yang kita gunakan bisa dilihat pada nilai Pr(>|t|). Jika nilai Pr(>|t|) lebih kecil dari nilai α = 0.05, maka dapat kita katakan bahwa variabel prediktor tersebut berpengaruh terhadap target variabel kita. Untuk simplenya, kita bisa liat tanda bintang-bintang disamping nilai Pr(>|t|), semakin banyak bintang disana, artinya variabel prediktor tersebut berpengaruh terhadap target variabel.
+
+Ketika ada variabel prediktor yang tidak signifikan, kita dapat membuangnya dengan tidak mengikut sertakan variabel tersebut dalam model. Pada model awal yang kita buat, terdapat 3 variabel prediktor yang tidak signifikan, yaitu citric.acid, chlorides, dan total.sulfur.dioxide. Untuk membuang variabel yang tidak berpengaruh, kita membuangnya satu persatu agar kita memperoleh model yang paling baik.
+
+## Stepwise
+Untuk mempermudah pengevaluasian variabel prediktor, kita dapat menggunakan metode stepwise. Stepwise merupakan metode yang digunakan untuk evaluasi variabel yang tidak berpengaruh terhadap model. Stepwise memiliki 3 cara dalam mengevaluasi variabel, diantaranya yaitu :
+
+backward : Mengevaluasi model dengan cara memasukkan seluruh variabel prediktor lalu mengurangi satu persatu variabel prediktor yang tidak berpengaruh hingga memperoleh nilai AIC (Akaike Information Criterion) terkecil/R-Squared terbesar
+forward : Mengevaluasi model dengan cara memasukkan satu persatu variabel yang dirasa berpengaruh terhadap target variabel hingga memperoleh nilai AIC terkecil/R-Squared terbesar
+both : Mengevaluasi model dengan cara menambahkan dan mengurangi variabel-variabel yang dirasa berpengaruh dan tidak berpengaruh terhadap target variabel
+Untuk melakukan analisis stepwise, kita membuat model sebagai berikut.
+```{r}
+model_none <- lm(Quality~1, red_wines_quality)
+model_all <- lm(Quality~., red_wines_quality)
+```
+Untuk melakukan stepwise dengan cara backward, kita dapat menggunakan model_all.
+```{r}
+step(model_all,  direction = "backward")
+```
+Dari hasil stepwise menggunakan backward, kita memperoleh model yang optimal menurutnya yaitu sebagai berikut.
+
+lm(formula = Quality ~ Fixed_Acidity + Volatile_Acidity + Residual_Sugar + Free_Sulfur_Dioxide + Density + Ph + Sulphates + Alcohol, data = red_wines_quality)
+```{r}
+backward <- lm(formula = Quality ~ Fixed_Acidity + Volatile_Acidity + Residual_Sugar + Free_Sulfur_Dioxide + Density + Ph + Sulphates + Alcohol, data = red_wines_quality)
+summary(backward)
+```
+Jika kita menggunakan metode forward untuk stepwise adalah sebagai berikut.
+```{r}
+step(model_none, scope = list(lower = model_none, upper = model_all), direction = "forward")
+```
+Untuk model yang terbentuk pada metode forward sebagai berikut :
+lm(formula = Quality ~ Alcohol + Volatile_Acidity + Residual_Sugar + Free_Sulfur_Dioxide + Density + Ph + Sulphates + Fixed_Acidity, data = red_wines_quality)
+```{r}
+forward <- lm(formula = Quality ~ Alcohol + Volatile_Acidity + Residual_Sugar + Free_Sulfur_Dioxide + Density + Ph + Sulphates + Fixed_Acidity, data = red_wines_quality)
+summary(forward)
+```
+Dari hasil stepwise menggunakan metode forward memperlihatkan hasil akurasi atau R-squared yang sama dengan backward. Berdasarkan business wise, kita gunakan model yang kita peroleh berdasarkan hasil dari stepwise yang telah kita bentuk.
+
+## Assumtional checking
+Dalam linear regression, kita memiliki asumsi-asumsi yang harus terpenuhi. Beberapa asumsi yang harus terpenuhi yaitu :
+
+Linearity : memiliki hubungan linear antara variabel prediktor dengan target variabel
+Residual Normal : eror berdistribusi normal
+No-Heteroskedastisity : erornya tidak berpola dan homogen
+No-Multikolinearity : tidak ada multikolinearitas antar variabel independen
+Untuk melakukan checking asumsi diatas, kita lakukan langkah berikut.
+
+## Linearity
+Untuk melakukan pengecekan linearity, kita bisa menggunakan nilai korelasi antar variabel. Ketika kita memiliki data yang tidak linear, kita bisa mengatasinya dengan melakukan transformasi terhadap datanya menggunakan log() atau exp()
+```{r}
+library(GGally)
+ggcorr(red_wines_quality, label = T, hjust =1)
+```
+
+## Normality
+Untuk melakukan pengecekan bahwa residual dari model yang telah kita buat itu berdistribusi normal atau tidak, kita bisa menggunakan uji shapiro test atau bisa juga dengan menggunakan histogram.
+
+Uji hipotesis dalam normality yaitu : H0 : residual berdistribusi normal H1 : residual tidak berdistribusi normal
+```{r}
+library(MASS)
+hist(forward$residuals)
+```
+```{r}
+shapiro.test(forward$residuals)
+```
+Berdasarkan hasil histogram dapat kita ketahui bahwa residual berdistribusi normal.
+
+## No Heterskedastisity
+Untuk melakukan pengecekan no-heteroskedastisity, kita bisa melihat persebaran dari resisual data kita atau bisa menggunakan Breuche Pagan test.
+
+uji hipotesisnya adalah sebagai berikut :
+
+H0: error tidak memiliki pola
+H1: errornya berpola
+```{r}
+plot(forward$residuals)
+```
+
+```{r}
+library(lmtest)
+```
+
+```{r}
+bptest(forward)
+```
+
+## No Multikolinearity
+Untuk melihat bahwa data yang kita gunakan tidak terdapat multikolinearitas, kita bisa menggunakan nilai VIF, dimana ketika nilai VIF < 10, maka data yang kita gunakan tidak terdapat multikolinearitas.
+```{r}
+library(car)
+vif(forward)
+```
+Untuk variabel residual.sugar dan density memiliki nilai VIF lebih besar dari 10, sehingga kita bisa tidak menggunakan kedua variabel tersebut dalam pengujian.
+```{r}
+model_fix <- lm(formula = Quality ~ Alcohol + Volatile_Acidity + Free_Sulfur_Dioxide + Ph + Sulphates + Fixed_Acidity, data = red_wines_quality)
+summary(model_fix)
+```
+
+```{r}
+vif(model_fix)
+```
+
+```{r}
+shapiro.test(model_fix$residual)
+```
+
+```{r}
+bptest(model_fix)
+```
+
+## Conclusion
+Berdasarkan dari hasil analisis regresi yang dilakukan, karena setelah di cek asumsi banyak asumsi yang tidak terpenuhi. Terkadang ketika dalam bisnis, asumsi tidak terlalu dihiraukan, namun ada baiknya digunakan pengecekan asumsi.
+
+Hasil dari model regresi yang terbentuk adalah :
+
+y^=2.787519+0.337236alcohol−1.900031volatile.acidity+0.005154free.sulfur +0.032128pH+0.360709sulphates−0.056576fix.acidity
+
+Arti dari model tersebut adalah ketika bertambah satu satuan untuk nilai alcohol, maka akan menaikkan quality dari red wine. Sedangkan ketika bertambah satu satuan nilai volatile.acidity, maka akan menurunkan tingkat quality dari red wine.
+
+# Referensi
+https://rpubs.com/inayatus/linear-regression
