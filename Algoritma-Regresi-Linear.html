@@ -1632,12 +1632,44 @@ text-align: justify}
 </style>
 <div id="algoritma" class="section level1">
 <h1>Algoritma</h1>
+<p>Pada tutorial kali ini, akan membahas mengenai Regression Model. Apa
+itu regression model?</p>
+<p>Regression Model merupakan salah satu metode dalam machine learning
+yang dapat digunakan untuk melakukan prediksi dari suatu target variabel
+yang bersifat numerik. Keunggulan dari regression model adalah selain
+kita dapat memperoleh hasil akurasi dari prediksi kita, kita juga
+memperoleh model untuk prediksi data serta dapat melakukan interpretasi
+dari model yang kita miliki.</p>
+<p>Regression Model memiliki beberapa tipe tergantung dari bentuk data
+yang kita miliki. Regression Model yang paling simple adalah Linear
+Regression. Linear Regression memiliki pembagian lagi, tergantung
+prediktor yang kita gunakan, hanya ada 1 prediktor atau lebih dari satu
+prediktor. Jika satu prediktor maka kita gunakan Simple Linear
+Regression, namun jika lebih dari satu prediktor maka kita gunakan
+Multiple Linear Regression.</p>
 </div>
 <div id="tahapan" class="section level1">
 <h1>Tahapan</h1>
+<p>Linear Regression (regresi linier) mencoba untuk memodelkan hubungan
+antara dua variabel dengan memasang persamaan linier untuk mengamati
+data. Linear Regression berusaha menemukan hubungan matematis antar
+variabel. Berikut tahapan algoritma Linear Regression. 1. Siapkan data
+2. Identifikasi Atribut dan Label 3. Hitung X2, Y2, XY dan total dari
+masing-masingnya. 4. Hitung a dan b berdasarkan persamaan yang sudah
+ditentukan 5. Buat Model Persamaan Regresi Linear Sederhana</p>
 </div>
 <div id="eksperimen" class="section level1">
 <h1>Eksperimen</h1>
+<p>Model dari Linear Regression adalah sebagai berikut :</p>
+<p>y^=β0+β1x1</p>
+<p>di mana :</p>
+<p>y^ : nilai prediksi β0 : nilai intercept β1 : nilai koefisien regresi
+unutk x1 x1 : variabel prediktor Untuk memperjelas yang akan kita
+pelajari tentang linear regression, kita akan gunakan data red wines
+quality. Berdasarkan data red wines quality kita akan melakukan prediksi
+terhadap nilai quality pada red wines yang ada berdasarkan
+parameter-parameter atau variabel prediktor yang telah tersedia. Berikut
+ini isi dari data red wines quality.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>wine <span class="ot">&lt;-</span> <span class="fu">library</span>(haven)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>red_wines_quality <span class="ot">&lt;-</span> <span class="fu">read_sav</span>(<span class="st">&quot;red wines quality.sav&quot;</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(red_wines_quality)</span>
@@ -1667,6 +1699,10 @@ text-align: justify}
 ##   ..- attr(*, &quot;format.spss&quot;)= chr &quot;F8.2&quot;
 ##  $ Quality             : num [1:1600] 5 5 5 6 5 5 5 7 7 5 ...
 ##   ..- attr(*, &quot;format.spss&quot;)= chr &quot;F8.2&quot;</code></pre>
+<p>Data wine yang tela diimport berisi 12 variabel, dimana semua
+variabel bertipe numerik data. Untuk target variabel yang kita gunakan
+yaitu variabel quality karena disini kita ingin memprediksi besar
+kualitas dari red wine berdasarkan variabel prediktor yang ada.</p>
 <div id="build-model" class="section level2">
 <h2>Build Model</h2>
 <p>Dalam melakukan prediksi menggunakan linear regression, kita gunakan
@@ -1702,8 +1738,11 @@ function lm() yang ada pada R.</p>
 ##   (1 observation deleted due to missingness)
 ## Multiple R-squared:  0.2491, Adjusted R-squared:  0.2438 
 ## F-statistic: 47.85 on 11 and 1587 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p>Dalam melakukan prediksi menggunakan linear regression, kita gunakan
-function lm() yang ada pada R.</p>
+<p>Berdasarkan hasil analisis regresi yang kita lakukan diatas dengan
+menggunakan seluruh variabel prediktor, kita akan analisis satu persatu
+dari modelnya. Untuk melakukan analisis pada model regresi yang telah
+kita buat, kita perlu melihat apakah model yang kita buat mampu untuk
+mejelaskan target variabel yang kita miliki.</p>
 </div>
 <div id="uji-overall" class="section level2">
 <h2>Uji Overall</h2>
@@ -1785,12 +1824,12 @@ memiliki 3 cara dalam mengevaluasi variabel, diantaranya yaitu :</p>
 <p>backward : Mengevaluasi model dengan cara memasukkan seluruh variabel
 prediktor lalu mengurangi satu persatu variabel prediktor yang tidak
 berpengaruh hingga memperoleh nilai AIC (Akaike Information Criterion)
-terkecil/R-Squared terbesar forward : Mengevaluasi model dengan cara
+terkecil/R-Squared terbesar. forward : Mengevaluasi model dengan cara
 memasukkan satu persatu variabel yang dirasa berpengaruh terhadap target
-variabel hingga memperoleh nilai AIC terkecil/R-Squared terbesar both :
+variabel hingga memperoleh nilai AIC terkecil/R-Squared terbesar. both :
 Mengevaluasi model dengan cara menambahkan dan mengurangi
 variabel-variabel yang dirasa berpengaruh dan tidak berpengaruh terhadap
-target variabel Untuk melakukan analisis stepwise, kita membuat model
+target variabel. Untuk melakukan analisis stepwise, kita membuat model
 sebagai berikut.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>model_none <span class="ot">&lt;-</span> <span class="fu">lm</span>(Quality<span class="sc">~</span><span class="dv">1</span>, red_wines_quality)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>model_all <span class="ot">&lt;-</span> <span class="fu">lm</span>(Quality<span class="sc">~</span>., red_wines_quality)</span></code></pre></div>

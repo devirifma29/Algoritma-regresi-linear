@@ -30,15 +30,32 @@ Regression Model merupakan salah satu metode dalam machine learning yang dapat d
 Regression Model memiliki beberapa tipe tergantung dari bentuk data yang kita miliki. Regression Model yang paling simple adalah Linear Regression. Linear Regression memiliki pembagian lagi, tergantung prediktor yang kita gunakan, hanya ada 1 prediktor atau lebih dari satu prediktor. Jika satu prediktor maka kita gunakan Simple Linear Regression, namun jika lebih dari satu prediktor maka kita gunakan Multiple Linear Regression.
 
 # Tahapan
+Linear Regression (regresi linier) mencoba untuk memodelkan hubungan antara dua variabel dengan memasang persamaan linier untuk mengamati data. Linear Regression berusaha menemukan hubungan matematis antar variabel. Berikut tahapan algoritma Linear Regression.
+  1. Siapkan data
+  2. Identifikasi Atribut dan Label
+  3. Hitung X2, Y2, XY dan total dari masing-masingnya.
+  4. Hitung a dan b berdasarkan persamaan yang sudah ditentukan
+  5. Buat Model Persamaan Regresi Linear Sederhana
 
 # Eksperimen
+Model dari Linear Regression adalah sebagai berikut :
 
+y^=β0+β1x1
+
+di mana :
+
+y^ : nilai prediksi
+β0 : nilai intercept
+β1 : nilai koefisien regresi unutk x1
+x1 : variabel prediktor
+Untuk memperjelas yang akan kita pelajari tentang linear regression, kita akan gunakan data red wines quality. Berdasarkan data red wines quality kita akan melakukan prediksi terhadap nilai quality pada red wines yang ada berdasarkan parameter-parameter atau variabel prediktor yang telah tersedia. Berikut ini isi dari data red wines quality.
 ```{r}
 wine <- library(haven)
 red_wines_quality <- read_sav("red wines quality.sav")
 View(red_wines_quality)
 str(red_wines_quality)
 ```
+Data wine yang tela diimport berisi 12 variabel, dimana semua variabel bertipe numerik data. Untuk target variabel yang kita gunakan yaitu variabel quality karena disini kita ingin memprediksi besar kualitas dari red wine berdasarkan variabel prediktor yang ada.
 
 ## Build Model
 Dalam melakukan prediksi menggunakan linear regression, kita gunakan function lm() yang ada pada R.
@@ -46,7 +63,7 @@ Dalam melakukan prediksi menggunakan linear regression, kita gunakan function lm
 model <- lm(Quality~., red_wines_quality)
 summary(model)
 ```
-Dalam melakukan prediksi menggunakan linear regression, kita gunakan function lm() yang ada pada R.
+Berdasarkan hasil analisis regresi yang kita lakukan diatas dengan menggunakan seluruh variabel prediktor, kita akan analisis satu persatu dari modelnya. Untuk melakukan analisis pada model regresi yang telah kita buat, kita perlu melihat apakah model yang kita buat mampu untuk mejelaskan target variabel yang kita miliki.
 
 ## Uji Overall
 Uji yang pertama kita lakukan disebut uji overall. Untuk hipotesis yang digunakan yaitu :
@@ -87,9 +104,9 @@ Ketika ada variabel prediktor yang tidak signifikan, kita dapat membuangnya deng
 ## Stepwise
 Untuk mempermudah pengevaluasian variabel prediktor, kita dapat menggunakan metode stepwise. Stepwise merupakan metode yang digunakan untuk evaluasi variabel yang tidak berpengaruh terhadap model. Stepwise memiliki 3 cara dalam mengevaluasi variabel, diantaranya yaitu :
 
-backward : Mengevaluasi model dengan cara memasukkan seluruh variabel prediktor lalu mengurangi satu persatu variabel prediktor yang tidak berpengaruh hingga memperoleh nilai AIC (Akaike Information Criterion) terkecil/R-Squared terbesar
-forward : Mengevaluasi model dengan cara memasukkan satu persatu variabel yang dirasa berpengaruh terhadap target variabel hingga memperoleh nilai AIC terkecil/R-Squared terbesar
-both : Mengevaluasi model dengan cara menambahkan dan mengurangi variabel-variabel yang dirasa berpengaruh dan tidak berpengaruh terhadap target variabel
+backward : Mengevaluasi model dengan cara memasukkan seluruh variabel prediktor lalu mengurangi satu persatu variabel prediktor yang tidak berpengaruh hingga memperoleh nilai AIC (Akaike Information Criterion) terkecil/R-Squared terbesar.
+forward : Mengevaluasi model dengan cara memasukkan satu persatu variabel yang dirasa berpengaruh terhadap target variabel hingga memperoleh nilai AIC terkecil/R-Squared terbesar.
+both : Mengevaluasi model dengan cara menambahkan dan mengurangi variabel-variabel yang dirasa berpengaruh dan tidak berpengaruh terhadap target variabel.
 Untuk melakukan analisis stepwise, kita membuat model sebagai berikut.
 ```{r}
 model_none <- lm(Quality~1, red_wines_quality)
