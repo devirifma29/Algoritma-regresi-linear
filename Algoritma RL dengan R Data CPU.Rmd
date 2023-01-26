@@ -1,0 +1,205 @@
+---
+title: "ALgoritma Linear Regression dengan R"
+date: "`r Sys.Date()`"
+author: Devi Rifma Cahyani-Institut Teknologi Statistika dan Bisnis Muhammadiyah
+output:
+  rmdformats::downcute:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+bibliography: references.bib
+---
+
+```{=html}
+<style>
+body{
+text-align: justify}
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Algoritma Linear Regression
+Regresi linear berganda merupakan model regresi yang melibatkan lebih dari satu variabel independen. Analisis regresi linear berganda dilakukan untuk mengetahui arah dan seberapa besar pengaruh variabel independen terhadap variabel dependen (Ghozali, 2018).
+
+# Tahapan Algoritma Linear Regression
+Langkah-langkah yang lazim dipergunakan dalam analisis regresi linear berganda adalah 
+1) koefisien determinasi 
+2) Uji F dan 
+3 ) uji t. 
+Persamaan regresi sebaiknya dilakukan di akhir analisis karena interpretasi terhadap persamaan regresi akan lebih akurat jika telah diketahui signifikansinya.
+
+# Eksperimen Algoritma Linear Regression
+## Model Linear Regression
+Model dari Linear Regression adalah sebagai berikut :
+
+y^=β0+β1x1
+
+di mana :
+
+y^ : nilai prediksi
+β0 : nilai intercept
+β1 : nilai koefisien regresi untuk x1
+x1 : variabel prediktor
+Untuk memperjelas yang akan kita pelajari tentang linear regression, kita akan gunakan data cpu. Berdasarkan data cpu kita akan melakukan prediksi terhadap nilai performance pada cpu yang ada berdasarkan parameter-parameter atau variabel prediktor yang telah tersedia. 
+
+## Menampilkan Data
+```{r}
+library(readxl)
+CPU <- read_excel("CPU.xlsx")
+View(CPU)
+str(CPU)
+```
+
+## Membangun Model
+dalam melakukan prediksi menggunakan linear regression, gunakan funcion lm() pada R.
+```{r}
+model <- lm(PERFORMANCE~., CPU)
+summary(model)
+```
+Berdasarkan hasil analisis regresi yang kita lakukan diatas dengan menggunakan seluruh variabel prediktor, kita akan analisis satu persatu dari modelnya. Untuk melakukan analisis pada model regresi yang telah kita buat, kita perlu melihat apakah model yang kita buat mampu untuk mejelaskan target variabel yang kita miliki.
+
+## Uji Overall
+Uji yang pertama kita lakukan disebut uji overall. Untuk hipotesis yang digunakan yaitu :
+
+H0 : Model tidak signifikan (Model belum mampu menjelaskan target variabel)
+H1 : Model signifikan (Model mampu menjelaskan target variabel)
+
+Dalam melakukan uji overall, kita melihat nilai F-statistic yang ditampilkan dalam model dan melihat p-value yang paling bawah. Karena nilai p-value < α  yaitu <2.2e-16 < 0.05 sehingga kita memperoleh keputusan tolak H0  yang artinya model yang kita buat dapat menjelaskan target variabel yang kita miliki yaitu performance.
+
+## R-Squared
+Selanjutnya kita akan melihat kebaikan dari model yang telah kita buat. Untuk melihat kebaikan model kita, kita bisa menggunakan nilai Multiple R-Squared (untuk univariat regression) dan Adjusted R-Squared (untuk multiple regression). Nilai Multiple dan Adjusted R-Squared berkisar dari 0 hingga 1. Semakin mendekati 1, maka model yang kita miliki semakin bagus dalam artian variabel prediktor dapat menjelaskan target variabel kita dengan baik.
+
+Nilai adjusted R-Squared yang kita miliki yaitu 0.8736 atau sebesar  87,36%model dapat menjelaskan target variabel sisanya dijelaskan oleh faktor lain.
+
+## Error
+Karena nilai Multiple R-quared yang kita miliki kecil, kita bisa melihat dari nilai error dari hasil prediksi kita. Untuk melihat nilai error, ada beberapa perhitungan error yang bisa kita gunakan. Salah satunya yaitu RMSE (Root Mean Square Error)
+```{r}
+library(caret)
+RMSE(model$fitted.values, CPU$PERFORMANCE, na.rm = T)
+```
+Nilai error yang kita dapatkan cukup kecil, sehingga kita bisa gunakan model regresi yang telah kita buat untuk memprediksi nilai performance selanjutnya.
+
+## Uji Parsial
+Selanjutnya untuk mengimprove dari model kita agar nilai R-Squared lebih tinggi, kita melakukan uji parsial. Uji parsial adalah untuk melihat apakah dari masing-masing variabel prediktor yang kita gunakan untuk melakukan prediksi berpengaruh signifikan terhadap target variabel yang kita miliki.
+
+Hipotesis yang digunakan adalah sebagai berikut :
+
+H0 : Variabel prediktor tidak signifikan (Variabel prediktor tidak berpengaruh terhadap nilai dari target variabel)
+H1 : variabel prediktor signifikan (Variabel prediktor berpengaruh terhadap nilai dari target variabel)
+
+Untuk melakukan uji parsial atau melihat apakah berpengaruh atau tidak variabel prediktor yang kita gunakan bisa dilihat pada nilai Pr(>|t|). Jika nilai Pr(>|t|) lebih kecil dari nilai α
+ = 0.05, maka dapat kita katakan bahwa variabel prediktor tersebut berpengaruh terhadap target variabel kita. Untuk simplenya, kita bisa liat tanda bintang-bintang disamping nilai Pr(>|t|), semakin banyak bintang disana, artinya variabel prediktor tersebut berpengaruh terhadap target variabel.
+ 
+## Stepwise
+Untuk mempermudah pengevaluasian variabel prediktor, kita dapat menggunakan metode stepwise. Stepwise merupakan metode yang digunakan untuk evaluasi variabel yang tidak berpengaruh terhadap model. Stepwise memiliki 3 cara dalam mengevaluasi variabel, diantaranya yaitu :
+
+backward : Mengevaluasi model dengan cara memasukkan seluruh variabel prediktor lalu mengurangi satu persatu variabel prediktor yang tidak berpengaruh hingga memperoleh nilai AIC (Akaike Information Criterion) terkecil/R-Squared terbesar
+forward : Mengevaluasi model dengan cara memasukkan satu persatu variabel yang dirasa berpengaruh terhadap target variabel hingga memperoleh nilai AIC terkecil/R-Squared terbesar
+both : Mengevaluasi model dengan cara menambahkan dan mengurangi variabel-variabel yang dirasa berpengaruh dan tidak berpengaruh terhadap target variabel
+```{r}
+model_none <- lm(PERFORMANCE~1, CPU)
+model_all <- lm(PERFORMANCE~., CPU)
+```
+Untuk melakukan stepwise dengan cara backward, kita dapat menggunakan model_all.
+```{r}
+step(model_all, direction = "backward")
+```
+Dari hasil stepwise menggunakan backward, kita memperoleh model yang optimal menurutnya yaitu sebagai berikut.
+
+lm(PERFORMANCE ~ MYCT + MMIN + MMAX + CACH + CHMIN + CHMAX, CPU)
+```{r}
+backward <- lm(PERFORMANCE ~ MYCT + MMIN + MMAX + CACH + CHMIN + CHMAX, CPU)
+summary(backward)
+```
+Jika kita menggunakan metode forward untuk stepwise adalah sebagai berikut.
+```{r}
+step(model_none, scope = list(lower = model_none, upper = model_all), direction = "forward")
+```
+Untuk model yang terbentuk pada metode forward sebagai berikut :
+lm(PERFORMANCE ~ MYCT + MMIN + MMAX + CACH + CHMIN + CHMAX, CPU )
+```{r}
+forward <- lm(PERFORMANCE ~ MYCT + MMIN + MMAX + CACH + CHMIN + CHMAX, CPU )
+summary(forward)
+```
+Dari hasil stepwise menggunakan metode forward memperlihatkan hasil akurasi atau R-squared yang sama dengan backward. Berdasarkan business wise, kita gunakan model yang kita peroleh berdasarkan hasil dari stepwise yang telah kita bentuk.
+
+## Pemeriksaan Asumsi
+Dalam linear regression, kita memiliki asumsi-asumsi yang harus terpenuhi. Beberapa asumsi yang harus terpenuhi yaitu :
+
+Linearity : memiliki hubungan linear antara variabel prediktor dengan target variabel
+Residual Normal : eror berdistribusi normal
+No-Heteroskedastisity : erornya tidak berpola dan homogen
+No-Multikolinearity : tidak ada multikolinearitas antar variabel independen
+Untuk melakukan checking asumsi diatas, kita lakukan langkah berikut.
+
+## Linearitas
+Untuk melakukan pengecekan linearity, kita bisa menggunakan nilai korelasi antar variabel. Ketika kita memiliki data yang tidak linear, kita bisa mengatasinya dengan melakukan transformasi terhadap datanya menggunakan log() atau exp().
+```{r}
+library(GGally)
+ggcorr(CPU, label = T, hjust=1)
+```
+
+## Normalitas
+Untuk melakukan pengecekan bahwa residual dari model yang telah kita buat itu berdistribusi normal atau tidak, kita bisa menggunakan uji shapiro test atau bisa juga dengan menggunakan histogram.
+
+Uji hipotesis dalam normality yaitu : 
+H0 : residual berdistribusi normal 
+H1 : residual tidak berdistribusi normal
+```{r}
+library(MASS)
+hist(forward$residuals)
+```
+Berdasarkan hasil histogram dapat kita ketahui bahwa residual berdistribusi normal.
+
+## Tidak Heteroskedastisitas
+```{r}
+plot(forward$residuals)
+```
+
+```{r}
+library(lmtest)
+```
+```{r}
+bptest(forward)
+```
+
+## Tidak Ada MUltikolinearitas
+Untuk melihat bahwa data yang kita gunakan tidak terdapat multikolinearitas, kita bisa menggunakan nilai VIF, dimana ketika nilai VIF < 10, maka data yang kita gunakan tidak terdapat multikolinearitas.
+```{r}
+library(car)
+vif(forward)
+```
+variabel-variabel tersebut memiliki nilai VIF lebih kecil dari 10, sehingga kita bisa menggunakan variabel-variabel tersebut dalam pengujian.
+```{r}
+model_fix <- lm(PERFORMANCE ~ MYCT + MMIN + MMAX + CACH + CHMIN + CHMAX, CPU)
+summary((model_fix))
+```
+
+```{r}
+vif(model_fix)
+```
+
+```{r}
+shapiro.test  (model_fix$residuals)
+```
+
+```{r}
+bptest(model_fix)
+```
+
+## Kesimpulan
+Berdasarkan dari hasil analisis regresi yang dilakukan, karena setelah di cek asumsi banyak asumsi yang tidak terpenuhi. Terkadang ketika dalam bisnis, asumsi tidak terlalu dihiraukan, namun ada baiknya digunakan pengecekan asumsi.
+
+Hasil dari model regresi yang terbentuk adalah :
+y^ : -4.397e+01 + 3.845e-02 MYCT +1.674e-02 MMIN + .451e-03 MMAX + 6.025e-01 CACH + 1.291e+00 CHMIN + 9.060e-01 CHMAX
+
+# Referensi
+https://rpubs.com/inayatus/linear-regression
+https://github.com/devirifma29
+https://rpubs.com/devirifma29
+https://accounting.binus.ac.id/2021/08/12/memahami-analisis-regresi-linear-berganda/#:~:text=Regresi%20linear%20berganda%20merupakan%20model,dependen%20(Ghozali%2C%202018).
+https://tpb.uncp.ac.id/2013/04/regresi-linear-berganda.html#:~:text=Langkah%2Dlangkah%20yang%20lazim%20dipergunakan,akurat%20jika%20telah%20diketahui%20signifikansinya.
